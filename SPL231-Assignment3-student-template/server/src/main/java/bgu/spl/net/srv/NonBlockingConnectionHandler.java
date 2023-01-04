@@ -1,9 +1,8 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.impl.stomp.StompConnections;
-import bgu.spl.net.impl.stomp.StompProtocolIMP;
 import bgu.spl.net.impl.stomp.frameObject;
 
 import java.io.IOException;
@@ -18,31 +17,35 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private static final int BUFFER_ALLOCATION_SIZE = 1 << 13; //8k
     private static final ConcurrentLinkedQueue<ByteBuffer> BUFFER_POOL = new ConcurrentLinkedQueue<>();
 
-    private final MessagingProtocol<T> protocol;
+    private final StompMessagingProtocol<T> protocol;
     private final MessageEncoderDecoder<T> encdec;
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
     private final Reactor reactor;
-    StompConnections<frameObject> connections;
-    int conectionId;
+    StompConnections connections;
+    int connectionId;
 
     public NonBlockingConnectionHandler(
             MessageEncoderDecoder<T> reader,
-            MessagingProtocol<T> protocol,
+            StompMessagingProtocol<T> protocol,
             SocketChannel chan,
             Reactor reactor,
-            StompConnections<frameObject> connections,
+            StompConnections connections,
             int conectionId) {
         this.chan = chan;
         this.encdec = reader;
         this.protocol = protocol;
         this.reactor = reactor;
         this.connections = connections;
-        this.conectionId = conectionId;
+        this.connectionId = conectionId;
     }
 
     public Runnable continueRead() {
         ByteBuffer buf = leaseBuffer();
+        protocol.start(connectionId, connections);
+        //TODO not good casting
+        connections.CH.add((ConnectionHandler<frameObject>) this);
+        connections.connectionIdConnectionHandler.put(connectionId, (ConnectionHandler<frameObject>) this);
 
         boolean success = false;
         try {
@@ -128,11 +131,4 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
     }
-
-    /*public void start(Connections<frameObject> connections){
-        //TODO
-        //((StompProtocolIMP) protocol).star);
-        int connectionId = connections.getConnectionsId();
-        ((StompProtocolIMP) protocol).start(connectionId,connections);
-    }*/
 }

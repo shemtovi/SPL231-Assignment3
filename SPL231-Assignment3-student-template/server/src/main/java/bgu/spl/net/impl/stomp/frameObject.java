@@ -6,13 +6,13 @@ import java.util.Map;
 
 public class frameObject {
     String commandLine;
-    Map<String,String> headers = new HashMap<String,String>();
-    String message;
+    public Map<String,String> headers = new HashMap<String,String>();
+    String body;
 
-    public frameObject(String commandLine, Map<String,String> map, String message){
+    public frameObject(String commandLine, Map<String,String> map, String body){
         this.commandLine = commandLine;
         this.headers = map;
-        this.message = message;
+        this.body = body;
   
     }
 
@@ -24,9 +24,9 @@ public class frameObject {
             if(field != null)
                 ans = ans + field + ":" + headers.get(field) + "\n";
         }
-        ans += "\n";
-        if(message != null)
-            ans += message + "\n";
+    
+        if(body != null)
+            ans += "\n" + body;
         return ans;
     }
 
@@ -44,12 +44,21 @@ public class frameObject {
             }
             else if(inHeaders){
                 int dotIndexs = line.indexOf(':');
-                String key = line.substring(0, dotIndexs);
-                String value = line.substring(dotIndexs +1);
+                String key;
+                String value;
+                if(dotIndexs != -1){
+                    key = line.substring(0, dotIndexs);
+                    value = line.substring(dotIndexs +1);
+                }
+                else{
+                    //if client forgat to put ":"
+                    key = line;
+                    value = null;
+                }
                 map.put(key, value);
             }
             else{
-                message += line +"\n";
+                message += line;
             }
         }
         return new frameObject(command,map,message);

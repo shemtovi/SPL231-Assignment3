@@ -2,6 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.impl.stomp.StompConnections;
 import bgu.spl.net.impl.stomp.frameObject;
 
@@ -18,11 +19,11 @@ import java.util.function.Supplier;
 public class Reactor<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
+    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-    private StompConnections<frameObject> connections;
+    private StompConnections connections;
     int connctionId;
 
     private Thread selectorThread;
@@ -31,7 +32,7 @@ public class Reactor<T> implements Server<T> {
     public Reactor(
             int numThreads,
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
+            Supplier<StompMessagingProtocol<T>> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
@@ -52,7 +53,7 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
-            connections = new StompConnections<frameObject>();
+            connections = new StompConnections();
             connctionId = 0;
 
             while (!Thread.currentThread().isInterrupted()) {
@@ -109,7 +110,7 @@ public class Reactor<T> implements Server<T> {
                 clientChan,
                 this,
                 connections,
-                connctionId);
+                connctionId);                      
         connctionId++;               
         clientChan.register(selector, SelectionKey.OP_READ, handler);
     }

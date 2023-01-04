@@ -14,17 +14,17 @@ import java.net.Socket;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
-    private final MessagingProtocol<T> protocol;
+    private final StompMessagingProtocol<T> protocol;
     private final MessageEncoderDecoder<T> encdec;
     private final Socket sock;
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
-    StompConnections<frameObject> connections;
+    StompConnections connections;
     int connectionId;
 
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, MessagingProtocol<T> protocol, StompConnections<frameObject> connections,int connectionId) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, StompConnections connections,int connectionId) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
@@ -35,8 +35,10 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
-           // int i = connections.getConnectionId(this);
-           // ((StompProtocolIMP<frameObject>) protocol).start(connectionId,connections);
+            protocol.start(connectionId,connections);
+            //TODO not good casting
+            connections.CH.add((ConnectionHandler<frameObject>) this);
+            connections.connectionIdConnectionHandler.put(connectionId, (ConnectionHandler<frameObject>) this);
             int read;
 
             in = new BufferedInputStream(sock.getInputStream());
@@ -70,13 +72,4 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             }
         }catch(IOException ignore){} 
     }
-
-    public MessagingProtocol<T> getProtocol(){
-        return protocol;
-    }
-
-   /* public void start(Connections<frameObject> connections){
-        int connectionId = connections.getConnectionsId();
-        ((StompProtocolIMP) protocol).start(connectionId,connections);
-    }*/
 }

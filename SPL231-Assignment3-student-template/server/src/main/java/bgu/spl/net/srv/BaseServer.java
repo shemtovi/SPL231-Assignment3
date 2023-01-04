@@ -14,15 +14,15 @@ import java.util.function.Supplier;
 public abstract class BaseServer<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
+    private final Supplier<StompMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
-    private StompConnections<frameObject> connections;
+    private StompConnections connections;
     int connectionId;
 
     public BaseServer(
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
+            Supplier<StompMessagingProtocol<T>> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> encdecFactory) {
 
         this.port = port;
@@ -36,7 +36,7 @@ public abstract class BaseServer<T> implements Server<T> {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
 			System.out.println("Server started");
-            connections = new StompConnections<frameObject>();
+            connections = new StompConnections();
 
             this.sock = serverSock; //just to be able to close
             connectionId = 0;
