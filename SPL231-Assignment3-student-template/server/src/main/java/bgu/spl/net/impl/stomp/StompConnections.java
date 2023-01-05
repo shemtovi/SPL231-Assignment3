@@ -21,7 +21,7 @@ public ConcurrentHashMap<String,String> usernamePassword = new ConcurrentHashMap
 public ConcurrentHashMap<String,Integer> usernameConnectionId = new ConcurrentHashMap<String,Integer>();
 //CH
 public ConcurrentSkipListSet<ConnectionHandler<frameObject>> CH = new ConcurrentSkipListSet<ConnectionHandler<frameObject>>();
-
+//
 //***public boolean send(int connectionId, T msg)***
 //connectionId -> CH
 public ConcurrentHashMap<Integer,ConnectionHandler<frameObject>> connectionIdConnectionHandler = new ConcurrentHashMap<Integer,ConnectionHandler<frameObject>>();
@@ -75,6 +75,7 @@ public void Connections(){
 
         connectionIdConnectionHandler.remove(connectionId);
         CH.remove(ch);
+        String userName = usernameConnectionId.
         //usernameConnectionId.remove(connectionId);
         ConcurrentHashMap<String,String> subToChannelMap = connectionIdMap.get(connectionId);
         for(Map.Entry<String,String> getChannel: subToChannelMap.entrySet() ){
@@ -98,6 +99,7 @@ public void Connections(){
        if(correctPassword == null){
             usernamePassword.put(userName, password);
             usernameConnectionId.put(userName, connectionId);
+            
             return true;
        }
        return false;

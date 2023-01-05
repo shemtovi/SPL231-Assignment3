@@ -7,4 +7,6 @@ class StompProtocol
 {
 private:
 public:
+
+void process;
 };
