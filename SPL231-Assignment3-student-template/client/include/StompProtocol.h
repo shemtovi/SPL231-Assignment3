@@ -1,6 +1,8 @@
 #pragma once
+#include <string>
 
-#include "../include/ConnectionHandler.h"
+using std::string;
+
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -8,5 +10,6 @@ class StompProtocol
 private:
 public:
 
-void process;
+void send(string str);
+void receive(string str);
 };

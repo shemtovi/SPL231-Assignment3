@@ -1,10 +1,18 @@
 #pragma once
+
+#include <string>
+#include <unordered_map>
+using std::string;
+
 class Game
 {
 private:
-    /* data */
+    string title;
+    
+
+
 public:
-    Game(/* args */);
+    Game(string game);
     ~Game();
 };
-//TODO
+//TODO - this will be an object that we create for each game that will hold all the report from a game

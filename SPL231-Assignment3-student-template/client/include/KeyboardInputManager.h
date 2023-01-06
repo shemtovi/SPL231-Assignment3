@@ -1,10 +1,12 @@
 #pragma once
+#include "ConnectionHandler.h"
 class KeyboardInputManager
 {
 private:
-    /* data */
+    ConnectionHandler &connectionHandler;
 public:
-    KeyboardInputManager(/* args */);
+    KeyboardInputManager(ConnectionHandler &connectionHandler);
+    void run();
     ~KeyboardInputManager();
 };
 

@@ -1,12 +1,12 @@
 #include "../include/StompClient.h"
 #include "../include/User.h"
 #include "../include/ConnectionHandler.h"
-#include "../include/SocketInputManager.h"
+#include "../include/ServerInputManager.h"
 #include "../include/KeyboardInputManager.h"
 #include <thread>
 
-bool logout = false;
-std::string last_input="";
+//Termination condition
+bool disconnect = false;
 
 int main (int argc, char *argv[]) {
 	if (argc < 3) {
@@ -24,19 +24,20 @@ int main (int argc, char *argv[]) {
 
 	//Initialize objects to later start as threads
 	KeyboardInputManager readFromUser(connectionHandler);
-	SocketInputManager readFromSocket(connectionHandler);
-	
-	
-	//Here we need to deal with a login command
+	ServerInputManager readFromServer(connectionHandler);
 
-    while(!logout){
-        std::thread readFromKeyboard_thread(&KeyboardInputManager::run, &readFromUser);
-		std::thread readFromSocket_thread(&SocketInputManager::run, &readFromSocket);
+    //Create a current user for the client
+    User* user = new User();
 
-		readFromKeyboard_thread.join();
-		readFromSocket_thread.join();
+	//
+
+    while(!disconnect){
+        //This order of lines should make both threads operate concurrently while the main thread is waiting for them both to finish
+        std::thread thread_readFromKeyboard(&KeyboardInputManager::run, &readFromUser);
+        thread_readFromKeyboard.join();
+		std::thread thread_readFromSocket(&ServerInputManager::run, &readFromServer);
+		thread_readFromSocket.join();
     }
 
-    delete user;
     return 0;
 }
