@@ -5,7 +5,7 @@ public class StompServer {
 
     public static void main(String[] args) {
 
-       // args = new String[]{"t","TPC","r"};
+       args = new String[]{"t","TPC","r"};
 
         
 

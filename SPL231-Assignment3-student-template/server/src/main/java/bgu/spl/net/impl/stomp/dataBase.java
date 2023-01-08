@@ -136,7 +136,7 @@ public class dataBase {
     
     
         public boolean unsubscribe(String subId, int connectionId){
-            //connectionId -> {<subscriptionId -> channel>}
+            //connectionIdMap = Map:connectionId -> {<subscriptionId -> channel>}
             //subIdToChannel = Map:subscriptionId - cannel
             ConcurrentHashMap<String,String> subIdToChannel =  connectionIdMap.get(connectionId);
             if(subIdToChannel == null){

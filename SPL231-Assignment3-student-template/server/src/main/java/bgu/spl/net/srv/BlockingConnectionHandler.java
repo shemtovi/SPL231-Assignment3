@@ -37,7 +37,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
             protocol.start(connectionId,connections, dataBase);
-            connections.CH.add(this);
             connections.connectionIdConnectionHandler.put(connectionId, this);
             int read;
 

@@ -62,9 +62,9 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
     private void connect(frameObject message){
         String login = message.headers.get("login");
         String passcode = message.headers.get("passcode");
-        if(message.headers.get("accept-version") != "1.2"
-            ||message.headers.get("host") != "stomp.cs.bgu.ac.il"){
-                error(message,"accept-version or host invalid");
+        if(!(message.headers.get("accept-version").equals("1.2"))
+            ||!(message.headers.get("host").equals("stomp.cs.bgu.ac.il"))){
+                error(message,"accept-version or host " + message.headers.get("host") + " or invalid " + message.headers.get("accept-version"));
             }
         else if(login == null || passcode == null){
             error(message,"login or passcode missing");
