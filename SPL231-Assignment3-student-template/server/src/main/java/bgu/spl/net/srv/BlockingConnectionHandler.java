@@ -1,11 +1,10 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
-import bgu.spl.net.impl.stomp.StompConnections;
-import bgu.spl.net.impl.stomp.StompProtocolIMP;
-import bgu.spl.net.impl.stomp.frameObject;
+import bgu.spl.net.impl.stomp.ConnectionIMP;
+import bgu.spl.net.impl.stomp.dataBase;
+
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -20,25 +19,26 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
-    StompConnections connections;
+    ConnectionIMP<T> connections;
+    dataBase dataBase;
     int connectionId;
 
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, StompConnections connections,int connectionId) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, ConnectionIMP<T> connections,int connectionId,dataBase dataBase) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
         this.connections = connections;
         this.connectionId = connectionId;
+        this.dataBase = dataBase;
     }
 
     @Override
     public void run() {
         try (Socket sock = this.sock) { //just for automatic closing
-            protocol.start(connectionId,connections);
-            //TODO not good casting
-            connections.CH.add((ConnectionHandler<frameObject>) this);
-            connections.connectionIdConnectionHandler.put(connectionId, (ConnectionHandler<frameObject>) this);
+            protocol.start(connectionId,connections, dataBase);
+            connections.CH.add(this);
+            connections.connectionIdConnectionHandler.put(connectionId, this);
             int read;
 
             in = new BufferedInputStream(sock.getInputStream());

@@ -14,13 +14,14 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
 
     private boolean shouldTerminate = false;
     int connectionId; 
-    StompConnections connections;
-
+    ConnectionIMP<frameObject> connections;
+    dataBase dataBase;
 
     @Override
-    public void start(int connectionId, StompConnections connections){
+    public void start(int connectionId, ConnectionIMP<frameObject> connections, dataBase dataBase){
         this.connectionId = connectionId;
         this.connections = connections;
+        this.dataBase = dataBase;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
         else if(login == null || passcode == null){
             error(message,"login or passcode missing");
         }    
-        else if(connections.managedToConnect(login,passcode,connectionId)){
+        else if(dataBase.managedToConnect(login,passcode,connectionId)){
             //new user join or old user
             //send a connect frame
             Map<String,String> headers = new HashMap<String,String>();
@@ -88,17 +89,20 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
         if(destination == null)
             error(message, "malformed frame received - destination");
         else{
-            ConcurrentHashMap<Integer,String> cannelCIdSId = connections.channelsMap.get(destination);
+            ConcurrentHashMap<Integer,String> cannelCIdSId = dataBase.channelsMap.get(destination);
             if(cannelCIdSId == null){
                 error(message, "destination doesnot exist");
             }
             else if(cannelCIdSId.get(connectionId) != null){
                 //send a MESSAGE frame
-                Map<String,String> headers = new HashMap<String,String>();
-                headers.put("destination", destination);
-                frameObject msg = new frameObject("MESSAGE", headers, message.body);
-                connections.send(destination, msg);
-                receipt(message);
+                for(Map.Entry<Integer,String> cIdsId: cannelCIdSId.entrySet()){
+                    Map<String,String> headers = new HashMap<String,String>();
+                    headers.put("destination", destination);
+                    headers.put("message-id", cIdsId.getValue());
+                    Integer msgId = dataBase.getMessageId();
+                    headers.put("message-id", msgId.toString());
+                    connections.send(cIdsId.getKey(), new frameObject("MESSAGE", headers, message.body));
+                }
             }
             else{
                 error(message, "not subscribed to destination");
@@ -112,7 +116,7 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
         if(destination == null || id == null){
             error(message, "malformed frame received - destination/id");
         }
-        else if(connections.subscribe(connectionId,id,destination)){
+        else if(dataBase.subscribe(connectionId,id,destination)){
             //handle a SUBSCRIBE frame
             receipt(message);
         }
@@ -126,7 +130,7 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
         if(id == null){
             error(message, "malformed frame received - id");
         }
-        else if(connections.unsubscribe(id,connectionId)){
+        else if(dataBase.unsubscribe(id,connectionId)){
             //handle a UNSUBSCRIBE frame
             receipt(message);
         }
@@ -141,6 +145,7 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
             error(message, "malformed frame received - receipt");
         }
         else{
+            dataBase.disconnect(connectionId);
             connections.disconnect(connectionId);
             receipt(message);
         }
@@ -148,7 +153,6 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
 
     }
     private void error(frameObject message,String error){
-        //TODO
         Map<String,String> headers = new HashMap<String,String>();
         headers.put("message", error);
         String receiptId = message.headers.get("receipt");
@@ -157,6 +161,7 @@ public class StompProtocolIMP implements StompMessagingProtocol<frameObject>{
         String errorMessage ="The message:\n-----\n" + message.frameObjectToString() +"\n-----";
         connections.send(connectionId, new frameObject("ERROR", headers,errorMessage));
         connections.disconnect(connectionId);
+        dataBase.disconnect(connectionId);
         shouldTerminate = true;
     }
 

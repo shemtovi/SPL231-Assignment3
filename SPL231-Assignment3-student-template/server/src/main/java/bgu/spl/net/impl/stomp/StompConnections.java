@@ -1,13 +1,10 @@
 package bgu.spl.net.impl.stomp;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.Connections;
 
@@ -50,7 +47,6 @@ public void Connections(){
 
     @Override
     public void send(String channel, frameObject msg){
-        //TODO
         ConcurrentHashMap<Integer,String> connectionIdSubscriptionId = channelsMap.get(channel);
         for(Map.Entry<Integer,String> entry: connectionIdSubscriptionId.entrySet()){
             Map<String,String> headers = new HashMap<String,String>();

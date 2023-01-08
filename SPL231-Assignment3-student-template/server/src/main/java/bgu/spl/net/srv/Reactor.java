@@ -1,10 +1,11 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
-import bgu.spl.net.impl.stomp.StompConnections;
-import bgu.spl.net.impl.stomp.frameObject;
+import bgu.spl.net.impl.stomp.ConnectionIMP;
+import bgu.spl.net.impl.stomp.dataBase;
+
+
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,7 +24,8 @@ public class Reactor<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-    private StompConnections connections;
+    private ConnectionIMP<T> connections;
+    dataBase dataBase;
     int connctionId;
 
     private Thread selectorThread;
@@ -53,7 +55,8 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
-            connections = new StompConnections();
+            connections = new ConnectionIMP<T>();
+            dataBase = new dataBase();
             connctionId = 0;
 
             while (!Thread.currentThread().isInterrupted()) {
@@ -110,7 +113,8 @@ public class Reactor<T> implements Server<T> {
                 clientChan,
                 this,
                 connections,
-                connctionId);                      
+                connctionId,
+                dataBase);                      
         connctionId++;               
         clientChan.register(selector, SelectionKey.OP_READ, handler);
     }

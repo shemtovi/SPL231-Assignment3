@@ -2,8 +2,9 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.StompMessagingProtocol;
-import bgu.spl.net.impl.stomp.StompConnections;
-import bgu.spl.net.impl.stomp.frameObject;
+import bgu.spl.net.impl.stomp.ConnectionIMP;
+import bgu.spl.net.impl.stomp.dataBase;
+
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,32 +22,34 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private final MessageEncoderDecoder<T> encdec;
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
-    private final Reactor reactor;
-    StompConnections connections;
+    private final Reactor<T> reactor;
+    ConnectionIMP<T> connections;
+    dataBase dataBase;
     int connectionId;
 
     public NonBlockingConnectionHandler(
             MessageEncoderDecoder<T> reader,
             StompMessagingProtocol<T> protocol,
             SocketChannel chan,
-            Reactor reactor,
-            StompConnections connections,
-            int conectionId) {
+            Reactor<T> reactor,
+            ConnectionIMP<T> connections,
+            int conectionId,
+            dataBase dataBase) {
         this.chan = chan;
         this.encdec = reader;
         this.protocol = protocol;
         this.reactor = reactor;
         this.connections = connections;
         this.connectionId = conectionId;
+        this.dataBase = dataBase;
     }
 
     public Runnable continueRead() {
         ByteBuffer buf = leaseBuffer();
-        protocol.start(connectionId, connections);
-        //TODO not good casting
-        connections.CH.add((ConnectionHandler<frameObject>) this);
-        connections.connectionIdConnectionHandler.put(connectionId, (ConnectionHandler<frameObject>) this);
-
+        protocol.start(connectionId, connections,dataBase);
+        connections.CH.add(this);
+        connections.connectionIdConnectionHandler.put(connectionId, this);
+        
         boolean success = false;
         try {
             success = chan.read(buf) != -1;

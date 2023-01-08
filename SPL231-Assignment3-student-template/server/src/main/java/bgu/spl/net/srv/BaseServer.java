@@ -1,10 +1,10 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
-import bgu.spl.net.impl.stomp.StompConnections;
-import bgu.spl.net.impl.stomp.frameObject;
+import bgu.spl.net.impl.stomp.ConnectionIMP;
+import bgu.spl.net.impl.stomp.dataBase;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -17,8 +17,9 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<StompMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
-    private StompConnections connections;
+    private ConnectionIMP<T> connections;
     int connectionId;
+    private dataBase dataBase;
 
     public BaseServer(
             int port,
@@ -36,7 +37,8 @@ public abstract class BaseServer<T> implements Server<T> {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
 			System.out.println("Server started");
-            connections = new StompConnections();
+            connections = new ConnectionIMP<T>();
+            dataBase = new dataBase();
 
             this.sock = serverSock; //just to be able to close
             connectionId = 0;
@@ -50,8 +52,15 @@ public abstract class BaseServer<T> implements Server<T> {
                         encdecFactory.get(),
                         protocolFactory.get(),
                         connections,
-                        connectionId);
+                        connectionId,
+                        dataBase);
                 connectionId ++;        
+                //handler.getProtocol().start(connectionId, connections);
+                
+                /*
+                 * connections.CH.add((ConnectionHandler<frameObject>) this);
+            connections.connectionIdConnectionHandler.put(connectionId, (ConnectionHandler<frameObject>) this);
+                 */
                 //handler.start(connections);
                 //((StompMessagingProtocol<frameObject>)handler.getProtocol()).start(1, connections);
                 execute(handler);
