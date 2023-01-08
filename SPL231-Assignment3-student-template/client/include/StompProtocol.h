@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "event.h"
 
 using std::string;
 
@@ -8,8 +9,16 @@ using std::string;
 class StompProtocol
 {
 private:
-public:
+    ConnectionHandler &connectionHandler;
+    static vector<string> split(const string& str, char delimiter);
+    Frame toFrameSend(string &convert);
+    Frame toFrameRecieve(string &convert);
+    int receiptNum;
 
-void send(string str);
-void receive(string str);
+public:
+    StompProtocol(ConnectionHandler &connectionHandler);
+    bool should_terminate;
+    void send(string &convert);
+    void receive(string &convert);
+    string toStringFile(Event &event);
 };

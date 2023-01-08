@@ -3,19 +3,33 @@
 using std::string;
 
 //builder
-User::User(): gamesToId(),gamesStringToObject(), subsCounter(0) {};
+User::User(): gamesToSubId(),gamesStringToObject(), userName(""), subsId(0){};
 
 void  User::addSubscription(string game){
-    subsCounter++;
-    std::pair<string,int> new_sub (game,subsCounter);
+    std::pair<string,int> new_sub (game,subsId);
     Game* new_game = new Game(game);
     std::pair<string, Game*> link_game (game, new_game);
-    gamesToId.insert(new_sub);
+    gamesToSubId.insert(new_sub);
+    subsId++;
 };
 
 void User::removeSubscription(string game){
-    gamesToId.erase(game);
+    gamesToSubId.erase(game);
     //Maybe use the Game destructor to delete the game here
+    
     gamesStringToObject.erase(game);
+
 };
-//TODO
+
+int User::getSubId(string &game){
+    int subscriptionId = gamesToSubId.at(game);
+    return subscriptionId;
+};
+
+void User::setUserName(string &name){
+    userName = name;
+};
+
+string User::getUserName(){
+    return userName;
+};

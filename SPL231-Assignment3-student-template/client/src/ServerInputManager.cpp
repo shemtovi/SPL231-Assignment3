@@ -10,10 +10,11 @@ ServerInputManager::ServerInputManager(ConnectionHandler &connectionHandler): co
 
 void ServerInputManager::run(){
     string serverInput = "";
-    while(!disconnect){
+    while(!connectionHandler.protocol.should_terminate){
         //Read from the socket and insert into serverInput
         connectionHandler.getLine(serverInput);
         //Send to protocol to manage the input
-        connectionHandler.protocol.receive(serverInput);
+        T msg = connectionHandler.protocol.receive(serverInput);
+        connectionHandler.sendLine(msg)
     }
 };

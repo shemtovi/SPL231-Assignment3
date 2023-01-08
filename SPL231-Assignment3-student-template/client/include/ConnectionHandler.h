@@ -16,8 +16,9 @@ private:
 
 public:
 	StompProtocol protocol;
+	User user;
 
-	ConnectionHandler(std::string host, short port);
+	ConnectionHandler(std::string host, short port, User user);
 
 	virtual ~ConnectionHandler();
 

@@ -11,10 +11,11 @@ KeyboardInputManager::KeyboardInputManager(ConnectionHandler &connectionHandler)
 
 void KeyboardInputManager::run(){
     string keyboardInput = "";
-    while(!disconnect){
+    while(!connectionHandler.protocol.should_terminate){
         //Read from keyboard and insert to keyboardInput
         getline(std::cin, keyboardInput);
         //send to protocol to handle the input
+        
         connectionHandler.protocol.send(keyboardInput);
     }
 
