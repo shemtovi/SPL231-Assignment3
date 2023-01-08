@@ -1,4 +1,5 @@
 #pragma once
+#include "StompProtocol.h"
 
 #include <string>
 #include <iostream>
@@ -14,6 +15,8 @@ private:
 	tcp::socket socket_;
 
 public:
+	StompProtocol protocol;
+
 	ConnectionHandler(std::string host, short port);
 
 	virtual ~ConnectionHandler();
