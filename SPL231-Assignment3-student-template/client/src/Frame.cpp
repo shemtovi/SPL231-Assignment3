@@ -40,3 +40,15 @@ vector<string> Frame::split(const string& str, char delimiter) {
   }
   return lines;
 }
+
+string Frame::getCommandLine(){
+  return commandLine;
+};
+
+string Frame::getBody(){
+  return body;
+}
+
+unordered_map<string, string> Frame::getHeaders(){
+  return headers;
+}

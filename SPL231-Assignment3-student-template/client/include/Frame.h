@@ -22,5 +22,8 @@ public:
     string toString();
     static Frame toFrame(string &convert);
     static int getNextReceiptNum();
+    string getCommandLine();
+    unordered_map<string, string> getHeaders();
+    string getBody();
 };
 

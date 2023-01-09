@@ -47,7 +47,6 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     public Runnable continueRead() {
         ByteBuffer buf = leaseBuffer();
         protocol.start(connectionId, connections,dataBase);
-        connections.CH.add(this);
         connections.connectionIdConnectionHandler.put(connectionId, this);
         
         boolean success = false;

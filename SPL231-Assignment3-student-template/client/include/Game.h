@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include "Frame.h"
 using std::string;
 using std::map;
 
@@ -16,7 +17,8 @@ private:
     map<string, string> reports;
 
 public:
-    Game(string game);
+    Game(string &game);
     ~Game();
+    void addNewReport(Frame &frame);
 };
 //TODO - this will be an object that we create for each game that will hold all the reports from a game

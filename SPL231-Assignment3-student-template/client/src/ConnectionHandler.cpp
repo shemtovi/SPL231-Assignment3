@@ -9,8 +9,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port, User user) : host_(host), port_(port), io_service_(),
-                                                                socket_(io_service_), protocol(), user(user) {}
+ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port), io_service_(),
+                                                                socket_(io_service_), protocol(){}
 
 ConnectionHandler::~ConnectionHandler() {
 	close();
@@ -106,4 +106,14 @@ void ConnectionHandler::close() {
 	} catch (...) {
 		std::cout << "closing failed: connection already closed" << std::endl;
 	}
+}
+
+vector<string> ConnectionHandler::split(const string& str, char delimiter) {
+  vector<string> lines;
+  std::stringstream ss(str);
+  string line;
+  while (std::getline(ss, line, delimiter)) {
+    lines.push_back(line);
+  }
+  return lines;
 }

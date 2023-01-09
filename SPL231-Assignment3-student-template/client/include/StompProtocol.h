@@ -1,24 +1,36 @@
 #pragma once
 #include <string>
+#include <vector>
 #include "event.h"
+#include <list>
 
 using std::string;
-
+using std::pair;
+using std::vector;
+using std::list;
+using std::map;
 
 // TODO: implement the STOMP protocol
 class StompProtocol
 {
 private:
-    ConnectionHandler &connectionHandler;
-    static vector<string> split(const string& str, char delimiter);
-    Frame toFrameSend(string &convert);
-    Frame toFrameRecieve(string &convert);
-    int receiptNum;
+    unordered_map<string, int> gamesToSubId;
+    string userName;
+    int subsId;
+    map<pair<string,string>, list<Frame>> reportsMap;
+
+
 
 public:
-    StompProtocol(ConnectionHandler &connectionHandler);
+    StompProtocol();
     bool should_terminate;
-    void send(string &convert);
-    void receive(string &convert);
-    string toStringFile(Event &event);
+    void receiveProcess(Frame &frame);
+    void summaryProcess(Frame &frame);
+
+    
+    void addSubscription(string game);
+    void removeSubscription(string game);
+    int getSubId(string &game);
+    void setUserName(string &name);
+    string getUserName();
 };
